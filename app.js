@@ -10,7 +10,7 @@ const testCenterRouter = require("./routes/test-center-routes")
 app.use(express.json());
 
 // Use the CORS handler --------
-const allowedOrigins = ['*'];
+const allowedOrigins = ['http://localhost:4400', 'https://scholarship-web-gcqrn.ondigitalocean.app', 'https://jeet.aayamcareerinstitute.com'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
