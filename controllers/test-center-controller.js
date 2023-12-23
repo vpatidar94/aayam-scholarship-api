@@ -2,11 +2,11 @@ const Center = require("../models/test-center")
 
 const testCenter = async (req, res) => {
     try {
-      const { name, capacity, centerId, address } = req.body;
+      const { centerName, capacity, centerId, address } = req.body;
   
       // Create a new center instance
       const newCenter = new Center({
-        name,
+        centerName,
         capacity,
         centerId,
         address

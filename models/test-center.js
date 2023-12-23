@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const centerSchema = new Schema({
-    name: {
+    centerName: {
         type: String,
         required: true,
     },
@@ -14,7 +14,6 @@ const centerSchema = new Schema({
     },
     centerId: {
         type: String,
-        unique: true,
         required: true
     },
     address: {
