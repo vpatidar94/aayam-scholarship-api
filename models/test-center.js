@@ -5,7 +5,6 @@ const Schema = mongoose.Schema;
 const centerSchema = new Schema({
     name: {
         type: String,
-        unique: true,
         required: true,
     },
     capacity: {
