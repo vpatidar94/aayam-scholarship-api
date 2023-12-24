@@ -2,6 +2,7 @@ const Center = require("../models/test-center");
 const User = require("../models/user");
 const sendSMS = require("../services/sms-service");
 const { generateOTP, saveOTP } = require("../services/user-otp-service");
+const { sendTestInfo } = require("../services/whatsapp-service");
 
 const sendOTPMessage = async (req, res) => {
     const data = req.body;
@@ -88,6 +89,7 @@ const signup = async (req, res) => {
                 mode: mode,
             });
 
+            await sendTestInfo(mobileNo, mode, testDate);
             return res.status(201).json({ data: { user, isNew: false }, code: 200, status_code: "success", message: "User updated successfully." });
         }
 
@@ -124,7 +126,7 @@ const signup = async (req, res) => {
             // Update the center's capacity
             center.capacity -= 1;
             await center.save();
-
+            await sendTestInfo(mobileNo, mode, testDate);
             //token generate
             // const token = generateToken(user._id, user.mobileNo);
             return res.status(201).json({ data: { user, isNew: false }, code: 200, status_code: "success", message: "User updated successfully." })
