@@ -34,7 +34,7 @@ const signupOTP = async (req, res) => {
     try {
         const existingUser = await User.findOne({ mobileNo: mobileNo })
         if (existingUser) {
-            return res.status(400).json({ code: 400, status_code: 'error', message: 'user already exist' })
+            return res.status(403).json({ code: 403, status_code: 'error', message: 'user already exist' })
         }
         // Check if the mode is "online" (no need to select a test center)
         if (mode === 'online') {
@@ -150,5 +150,7 @@ const getAllUsers = async (req, res) => {
         return res.status(500).json({code:500, status_code:"error"})
     }
 }
+
+
 
 module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers }
