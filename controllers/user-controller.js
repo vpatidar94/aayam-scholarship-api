@@ -141,4 +141,14 @@ const signup = async (req, res) => {
 
 }
 
-module.exports = { sendOTPMessage, signupOTP, signup }
+const getAllUsers = async (req, res) => {
+    try{
+        const users = await User.find();
+        return res.status(200).json({data: users, code:200, status_code: "success", message: "users fetched successfully"})
+    }
+    catch (error){
+        return res.status(500).json({code:500, status_code:"error"})
+    }
+}
+
+module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers }
