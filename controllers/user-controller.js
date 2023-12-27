@@ -1,7 +1,8 @@
+const { generateToken } = require("../middleware/jwt-token");
 const Center = require("../models/test-center");
 const User = require("../models/user");
 const sendSMS = require("../services/sms-service");
-const { generateOTP, saveOTP } = require("../services/user-otp-service");
+const { generateOTP, saveOTP, verifyOTP } = require("../services/user-otp-service");
 const { sendTestInfo } = require("../services/whatsapp-service");
 
 const sendOTPMessage = async (req, res) => {
@@ -151,6 +152,41 @@ const getAllUsers = async (req, res) => {
     }
 }
 
+const signinOTP = async (req, res) => {
+    const {mobileNo} = req.body;
+    try {
+        const existingUser = await User.findOne({ mobileNo: mobileNo })
+        if (!existingUser){
+            return res.status(404).json({code:404, status_code: "Not Found", message: "user not found"})
+        }
+        await sendOTPMessage(req, res);
+    }
+    catch (error){
+        return res.status(500).json({code:500, status_code: "error"})
+    }
+}
 
+const signin = async (req, res) => {
+    const {mobileNo} = req.body;
 
-module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers }
+    try{
+        if (!mobileNo) {
+            return res.status(400).json({ error: 'Mobile number is required' });
+          }
+
+        const existingUser = await User.findOne({mobileNo: mobileNo})
+
+        if (!existingUser){
+            return res.status(404).json({code:404, status_code: "Not Found", message: "user not found"})
+        }
+
+        const token = generateToken(existingUser._id, existingUser.mobileNo, existingUser.type);
+
+        return res.status(200).json({data: {token, user: existingUser}, code:200, status_code:"success", })
+    }
+    catch (error){
+        return res.status(500).json({code:500, status_code:"error", message:"something went wrong"})
+    }
+}
+
+module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin }
