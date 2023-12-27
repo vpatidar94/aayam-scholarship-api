@@ -39,6 +39,59 @@ const sendTestInfo = async (mobileNo, mode, testDate) => {
     }
 };
 
+const sendRank = async (user, std, outOf, title, totalPoints) => {
+    try {
+        const payload = {
+            "to": '91' + user.mobileNo,
+            "recipient_type": "individual",
+            "type": "template",
+            "template": {
+                "language": {
+                    "policy": "deterministic",
+                    "code": "en"
+                },
+                "name": "aayam_star_rank_2",
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {
+                                "type": "text",
+                                "text": std.rank + '', //rank std.rank
+                            },
+                            {
+                                "type": "text",
+                                "text": title + '', //out of outOf
+                            },
+                            {
+                                "type": "text",
+                                "text": outOf + '',
+                            },
+                            {
+                                "type": "text",
+                                "text": std.points + '', //points > std.points
+                            },
+                            {
+                                "type": "text",
+                                "text": totalPoints + '',
+                            },
+                            {
+                                "type": "text",
+                                "text": "2000"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        // Assuming WPMessageTemplate is a function that sends the WhatsApp message
+        return await WPMessageTemplate(payload);
+    } catch (error) {
+        console.log('Error sending WhatsApp message: ' + error);
+        throw error;
+    }
+};
+
 const WPMessageTemplate = async (payload) => {
     const url = process.env.WHATSAPP_API_URL; // Replace with your WhatsApp API URL
     const apiKey = process.env.WHATSAPP_API_KEY; // Replace with your API key
@@ -90,5 +143,5 @@ const WPMessageTemplate = async (payload) => {
 };
 
 module.exports = {
-    sendTestInfo
+    sendTestInfo, sendRank
 };
