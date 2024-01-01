@@ -15,6 +15,6 @@ router.post('/verifyotp', verifyOTP);
 router.get('/', getAllUsers),
 router.get('/user', verifyToken, getUserById)
 router.post('/signin-otp', signinOTP);
-router.post('/signin', verifyToken, signin)
+router.post('/signin', signin)
 
 module.exports = router;
