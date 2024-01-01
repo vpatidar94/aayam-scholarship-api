@@ -189,4 +189,18 @@ const signin = async (req, res) => {
     }
 }
 
-module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin }
+const getUserById = async (req, res) => {
+    const { userId } = req.user;
+    try {
+      if (!userId) {
+        return res.status(400).json({ code: 404, status_code: "error", message: "userId required" })
+      }
+      const user = await User.findById(userId);
+      return res.status(200).json({ data: user, code: 200, status_code: "success", message: "User Fetched Successfully", })
+  
+    } catch {
+      return res.status(500).json({ code: 500, status_code: "error", message: "an error occured while fetching user" })
+    }
+  }
+
+module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById }

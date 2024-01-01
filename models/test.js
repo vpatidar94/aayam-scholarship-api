@@ -16,7 +16,7 @@ const test = new Schema({
         type: String,
     },
     subjectName: {
-        type: String,
+        type: Array,
         required: true,
     },
     stream: {
