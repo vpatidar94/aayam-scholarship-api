@@ -1,5 +1,6 @@
 const Result = require("../models/result");
 const Test = require("../models/test");
+const User = require("../models/user");
 // const router = require("../routes/result-routes");
 
 const addTest = async (req, res) => {
@@ -85,55 +86,7 @@ const getTestDetail = async (req, res) => {
   }
 }
 
-const submitResult = async (req, res) => {
-  try {
-    const data = req.body;
-    if (!data.testId || !data.questions || !data.questions.length < 0) {
-      return res.status(400).json({ code: 400, status_code: "error", error: 'Test details are required.' });
-    }
-    const reqQuestions = data.questions;
-    try {
-      const test = await Test.findOne(
-        { id: data.testId }
-      );
-      let scoreCount = 0;
-      if (test) {
-        test.questions.forEach(element => {
-          const index = reqQuestions.some(x => x.id === element.id && x?.studentAnswer === element?.correctAnswer);
-          if (index) {
-            scoreCount++;
-          }
-        });
 
-        try {
-          const resResult = {
-            userId: req.user.userId,
-            testId: test._id,
-            score: scoreCount,
-            rank: null,
-            duration: data.duration ?? 0,
-            studentResponse: reqQuestions
-          }
-          const newResult = new Result(resResult)
-          await newResult.save();
-
-          return res.status(200).json({ data: { ...resResult }, code: 200, status_code: "success", message: "Score added successfully." })
-        } catch (error) {
-          res.status(500).json({ code: 500, status_code: "error", error: 'Enter correct mobile number' });
-        }
-
-      }
-      else {
-        res.status(500).json({ code: 500, status_code: "error", error: 'Test not found.' });
-      }
-
-    } catch (error) {
-      res.status(500).json({ code: 500, status_code: "error", error: 'Test not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while adding the test' });
-  }
-}
 
 /*--------------- New Apis ----------------------*/
 
@@ -168,8 +121,8 @@ const getTestByStream = async (req, res) => {
     const testQuestions = selectedQuestions.map(({ correctAnswer, ...rest }) => rest);
     // Exclude 'questions' field from the test object
     const { questions, ...restOfTest } = test.toObject();
-  
-    return res.status(200).json({ data: {...restOfTest, questions:testQuestions, }, code: 200, status_code: "success", message: "Test questions fetched successfully." });
+
+    return res.status(200).json({ data: { ...restOfTest, questions: testQuestions, }, code: 200, status_code: "success", message: "Test questions fetched successfully." });
 
   } catch (error) {
     console.error(error);
@@ -194,6 +147,58 @@ const getAllTests = async (req, res) => {
   }
 }
 
+// store result and calculate score api
+const submitResult = async (req, res) => {
+  try {
+    const data = req.body;
+    if (!data.testId || !data.questions || !data.questions.length < 0) {
+      return res.status(400).json({ code: 400, status_code: "error", error: 'Test details are required.' });
+    }
+    const reqQuestions = data.questions;
+    try {
+      const test = await Test.findOne({ id: data.testId });
+      if (!test) {
+        return res.status(500).json({ code: 500, status_code: "error", error: 'Test not found.' });
+      }
+
+      let scoreCount = 0;
+      test.questions.forEach(element => {
+        const index = reqQuestions.some(x => x.id === element.id && x?.studentAnswer === element?.correctAnswer);
+        if (index) {
+          scoreCount++;
+        }
+      });
+
+      const resResult = {
+        userId: req.user.userId,
+        testId: test._id,
+        score: scoreCount,
+        rank: null,
+        duration: data.duration ?? 0,
+        studentResponse: reqQuestions
+      };
+
+      const user = await User.findOne({ _id: req.user.userId });
+
+      if (!user) {
+        return res.status(500).json({ code: 500, status_code: "error", error: 'User not found.' });
+      }
+
+      user.result.push(resResult);
+      await user.save();
+
+      const newResult = new Result(resResult);
+      await newResult.save();
+
+      return res.status(200).json({ data: { ...resResult }, code: 200, status_code: "success", message: "Score added successfully." });
+
+    } catch (error) {
+      res.status(500).json({ code: 500, status_code: "error", error: 'Test not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while adding the test' });
+  }
+}
 
 
 exports.addTest = addTest;
