@@ -146,7 +146,6 @@ const getTestByStream = async (req, res) => {
     }
 
     const test = await Test.findOne({ stream }); // Assuming you expect only one test
-
     if (!test) {
       return res.status(404).json({ code: 404, status_code: "error", error: 'Test not found' });
     }
@@ -167,8 +166,10 @@ const getTestByStream = async (req, res) => {
 
     // Remove 'correctAnswer' field from each question
     const testQuestions = selectedQuestions.map(({ correctAnswer, ...rest }) => rest);
-
-    return res.status(200).json({ data: [testQuestions, test.subjectNames], code: 200, status_code: "success", message: "Test questions fetched successfully." });
+    // Exclude 'questions' field from the test object
+    const { questions, ...restOfTest } = test.toObject();
+  
+    return res.status(200).json({ data: {...restOfTest, questions:testQuestions, }, code: 200, status_code: "success", message: "Test questions fetched successfully." });
 
   } catch (error) {
     console.error(error);
