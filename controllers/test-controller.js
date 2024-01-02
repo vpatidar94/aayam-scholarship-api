@@ -64,32 +64,6 @@ const deleteTest = async (req, res) => {
     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
   }
 }
-const getAllTest = async (req, res) => {
-  const userType = req.user.type;
-  try {
-    const { stream } = req.query;
-    let query = {};
-
-    // Add stream filter to the query if provided
-    if (stream) {
-      query = { stream: stream };
-    }
-    // For org-admin, filter tests up to the current date
-    if (userType === 'org-admin') {
-      query.testDate = { $lte: new Date() };
-    }
-    const tests = await Test.find(query).sort({ testDate: -1 });
-
-    if (!tests || tests.length <= 0) {
-      return res.status(200).json({ code: 201, data: [], status_code: "success", message: 'No test found.' });
-    }
-
-    return res.status(200).json({ data: tests, code: 200, status_code: "success", message: "All Tests records fetched successfully." })
-
-  } catch (error) {
-    return res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
-  }
-}
 
 const getTestDetail = async (req, res) => {
   try {
@@ -161,6 +135,8 @@ const submitResult = async (req, res) => {
   }
 }
 
+/*--------------- New Apis ----------------------*/
+
 const getTestByStream = async (req, res) => {
   try {
     const { stream } = req.params;
@@ -189,7 +165,7 @@ const getTestByStream = async (req, res) => {
       ...getRandomSubset(group2, 20),
       ...getRandomSubset(group3, 20),
     ];
-    
+
     // Remove 'correctAnswer' field from each question
     const testQuestions = selectedQuestions.map(({ correctAnswer, ...rest }) => rest);
 
@@ -207,11 +183,23 @@ function getRandomSubset(array, count) {
   return shuffled.slice(0, count);
 }
 
+// get all test api
+const getAllTests = async (req, res) => {
+  try {
+    const tests = await Test.find();
+    return res.status(200).json({ data: tests, code: 200, status_code: "success", message: "All Tests records fetched successfully." })
+
+  } catch (error) {
+    return res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
+  }
+}
+
+
 
 exports.addTest = addTest;
 exports.getTest = getTest;
 exports.getTestDetail = getTestDetail;
-exports.getAllTest = getAllTest;
+exports.getAllTests = getAllTests;
 exports.submitResult = submitResult;
 exports.deleteTest = deleteTest;
 exports.getTestByStream = getTestByStream;
