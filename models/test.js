@@ -15,7 +15,7 @@ const test = new Schema({
     subTitle: {
         type: String,
     },
-    subjectName: {
+    subjectNames: {
         type: Array,
         required: true,
     },
@@ -33,11 +33,9 @@ const test = new Schema({
     },
     passingScore: {
         type: Number,
-        required: true,
     },
     testDate: {
         type: Date,
-        required: true,
     },
     testDuration: {
         type: Number,

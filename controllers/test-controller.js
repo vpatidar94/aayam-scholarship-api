@@ -31,26 +31,26 @@ const getTest = async (req, res) => {
       return res.status(400).json({ code: 400, status_code: "error", error: 'Test id required' });
     }
     const test = await Test.find({ id: testId });
-    if (!test || test.length <= 0) {      
+    if (!test || test.length <= 0) {
       return res.status(404).json({ code: 404, status_code: "error", error: 'Test not found' });
     }
-    else{
+    else {
       const testIdCheck = test[0]._id.toString()
       const isTestAttempted = await Result.findOne({ testId: testIdCheck, userId: req.user.userId });
       if (isTestAttempted) {
         return res.status(452).json({ code: 452, status_code: "error", error: 'Test Already Attempted' });
       }
-    }    
+    }
     return res.status(200).json({ data: test[0], code: 200, status_code: "success", message: "Test fetched successfully." })
   } catch (error) {
     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
   }
 }
 
-const deleteTest = async(req,res) => {
+const deleteTest = async (req, res) => {
   try {
-    const {id} = req.params;
-    
+    const { id } = req.params;
+
     if (!id) {
       return res.status(400).json({ code: 400, status_code: "error", error: 'Test id required' });
     }
@@ -58,9 +58,9 @@ const deleteTest = async(req,res) => {
     if (!test) {
       return res.status(500).json({ message: "unable to delete test" });
     }
-    return res.status(200).json({data:test, code:200, status_code: "success", message:" Test deleted successfully"})
+    return res.status(200).json({ data: test, code: 200, status_code: "success", message: " Test deleted successfully" })
   }
-  catch(error){
+  catch (error) {
     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
   }
 }
@@ -161,10 +161,57 @@ const submitResult = async (req, res) => {
   }
 }
 
+const getTestByStream = async (req, res) => {
+  try {
+    const { stream } = req.params;
+
+    if (!stream) {
+      return res.status(400).json({ code: 400, status_code: "error", error: 'stream required' });
+    }
+
+    const test = await Test.findOne({ stream }); // Assuming you expect only one test
+
+    if (!test) {
+      return res.status(404).json({ code: 404, status_code: "error", error: 'Test not found' });
+    }
+
+    // Assuming questions are stored in an array in the 'questions' field
+    const allQuestions = test.questions;
+
+    // Divide questions into three groups
+    const group1 = allQuestions.slice(0, 100);
+    const group2 = allQuestions.slice(100, 200);
+    const group3 = allQuestions.slice(200, 300);
+
+    // Randomly select 20 questions from each group
+    const selectedQuestions = [
+      ...getRandomSubset(group1, 20),
+      ...getRandomSubset(group2, 20),
+      ...getRandomSubset(group3, 20),
+    ];
+    
+    // Remove 'correctAnswer' field from each question
+    const testQuestions = selectedQuestions.map(({ correctAnswer, ...rest }) => rest);
+
+    return res.status(200).json({ data: testQuestions, code: 200, status_code: "success", message: "Test questions fetched successfully." });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
+  }
+}
+
+// Helper function to get a random subset of an array
+function getRandomSubset(array, count) {
+  const shuffled = array.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+
 exports.addTest = addTest;
 exports.getTest = getTest;
 exports.getTestDetail = getTestDetail;
-
 exports.getAllTest = getAllTest;
 exports.submitResult = submitResult;
 exports.deleteTest = deleteTest;
+exports.getTestByStream = getTestByStream;
