@@ -153,7 +153,6 @@ const getTestByStream = async (req, res) => {
 
     // Assuming questions are stored in an array in the 'questions' field
     const allQuestions = test.questions;
-
     // Divide questions into three groups
     const group1 = allQuestions.slice(0, 100);
     const group2 = allQuestions.slice(100, 200);
@@ -169,7 +168,7 @@ const getTestByStream = async (req, res) => {
     // Remove 'correctAnswer' field from each question
     const testQuestions = selectedQuestions.map(({ correctAnswer, ...rest }) => rest);
 
-    return res.status(200).json({ data: testQuestions, code: 200, status_code: "success", message: "Test questions fetched successfully." });
+    return res.status(200).json({ data: [testQuestions, test.subjectNames], code: 200, status_code: "success", message: "Test questions fetched successfully." });
 
   } catch (error) {
     console.error(error);
