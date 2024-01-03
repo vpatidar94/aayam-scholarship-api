@@ -18,6 +18,12 @@ const centerSchema = new Schema({
     },
     address: {
         type:String
+    },
+    enrollId: {
+        type: String
+    },
+    sessionCode: {
+        type: String
     }
 });
 

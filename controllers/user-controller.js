@@ -4,6 +4,7 @@ const User = require("../models/user");
 const sendSMS = require("../services/sms-service");
 const { generateOTP, saveOTP, verifyOTP } = require("../services/user-otp-service");
 const { sendTestInfo } = require("../services/whatsapp-service");
+const TestCenter = require("../models/test-center");
 
 const sendOTPMessage = async (req, res) => {
     const data = req.body;
@@ -143,64 +144,183 @@ const signup = async (req, res) => {
 }
 
 const getAllUsers = async (req, res) => {
-    try{
+    try {
         const users = await User.find();
-        return res.status(200).json({data: users, code:200, status_code: "success", message: "users fetched successfully"})
+        return res.status(200).json({ data: users, code: 200, status_code: "success", message: "users fetched successfully" })
     }
-    catch (error){
-        return res.status(500).json({code:500, status_code:"error"})
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "error" })
     }
 }
 
 const signinOTP = async (req, res) => {
-    const {mobileNo} = req.body;
+    const { mobileNo } = req.body;
     try {
         const existingUser = await User.findOne({ mobileNo: mobileNo })
-        if (!existingUser){
-            return res.status(404).json({code:404, status_code: "Not Found", message: "user not found"})
+        if (!existingUser) {
+            return res.status(404).json({ code: 404, status_code: "Not Found", message: "user not found" })
         }
         await sendOTPMessage(req, res);
     }
-    catch (error){
-        return res.status(500).json({code:500, status_code: "error"})
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "error" })
     }
 }
 
 const signin = async (req, res) => {
-    const {mobileNo} = req.body;
+    const { mobileNo } = req.body;
 
-    try{
+    try {
         if (!mobileNo) {
             return res.status(400).json({ error: 'Mobile number is required' });
-          }
+        }
 
-        const existingUser = await User.findOne({mobileNo: mobileNo})
+        const existingUser = await User.findOne({ mobileNo: mobileNo })
 
-        if (!existingUser){
-            return res.status(404).json({code:404, status_code: "Not Found", message: "user not found"})
+        if (!existingUser) {
+            return res.status(404).json({ code: 404, status_code: "Not Found", message: "user not found" })
         }
 
         const token = generateToken(existingUser._id, existingUser.mobileNo, existingUser.type, existingUser.mode);
 
-        return res.status(200).json({data: {token, user: existingUser}, code:200, status_code:"success", })
+        return res.status(200).json({ data: { token, user: existingUser }, code: 200, status_code: "success", })
     }
-    catch (error){
-        return res.status(500).json({code:500, status_code:"error", message:"something went wrong"})
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "error", message: "something went wrong" })
     }
 }
 
 const getUserById = async (req, res) => {
     const { userId } = req.user;
     try {
-      if (!userId) {
-        return res.status(400).json({ code: 404, status_code: "error", message: "userId required" })
-      }
-      const user = await User.findById(userId);
-      return res.status(200).json({ data: user, code: 200, status_code: "success", message: "User Fetched Successfully", })
-  
-    } catch {
-      return res.status(500).json({ code: 500, status_code: "error", message: "an error occured while fetching user" })
-    }
-  }
+        if (!userId) {
+            return res.status(400).json({ code: 404, status_code: "error", message: "userId required" })
+        }
+        const user = await User.findById(userId);
+        return res.status(200).json({ data: user, code: 200, status_code: "success", message: "User Fetched Successfully", })
 
-module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById }
+    } catch {
+        return res.status(500).json({ code: 500, status_code: "error", message: "an error occured while fetching user" })
+    }
+}
+
+//generate enrollmentNo
+const generateAllEnrollmentNo = async (req, res) => {
+    try {
+        const users = await User.find();
+        const enrollmentNumbers = [];
+
+        for (const user of users) {
+            const result = await generateEnrollmentNo(user);
+            // Check if result is defined and has the expected properties
+            if (result && result.data && result.data.enrollmentNo) {
+                enrollmentNumbers.push({ userId: user._id, enrollmentNo: result.data.enrollmentNo });
+            } else {
+                if (result.code === 500) {
+                    console.error(`Error generating enrollmentNo for user ${user._id}: Invalid result structure`);
+                }
+            }
+        }
+
+        res.status(200).json({ data: enrollmentNumbers, code: 200, status_code: "success", message: "Enrollment numbers generated successfully for all users." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while generating enrollment numbers for users.' });
+    }
+}
+
+const generateSingleEnrollmentNo = async (req, res) => {
+    const { userId } = req.body;
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        const userEnl = await generateEnrollmentNo(user);
+        res.status(200).json({ data: userEnl, success: true, message: 'Enrollment number generated successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error generating enrollment number.' });
+    }
+}
+const generateEnrollmentNo = async (user) => {
+    try {
+        // Check if enrollmentNo already exists
+        if (user.enrollmentNo) {
+            return { code: 400, status_code: 'error', error: 'EnrollmentNo already generated' };
+        }
+
+        // Generate consistent enrollmentNo based on mode and enrollId
+        let enrollmentNo;
+
+        if (user.mode === 'offline') {
+            // Fetch TestCenter details
+            const testCenter = await TestCenter.findById(user.testCenter);
+            if (!testCenter) {
+                return { code: 404, status_code: 'error', error: 'TestCenter not found' };
+            }
+
+            // If mode is offline, use the first two digits from testCenter's enrollId
+            const firstTwoDigits = testCenter.enrollId.toString().padStart(2, '0');
+            const sequentialNumber = await getSequentialNumber(user.testCenter, user.mode);
+            //enrollmentNo = `${firstTwoDigits}${sequentialNumber.toString().padStart(4, '0')}`;
+            enrollmentNo = `${firstTwoDigits}${sequentialNumber}`;
+        } else if (user.mode === 'online') {
+            // If mode is online, start enrollmentNo with 99
+            const sequentialNumber = await getSequentialNumber(user.testCenter, user.mode);
+            enrollmentNo = `9${sequentialNumber.toString().padStart(5, '0')}`;
+        } else {
+            return { code: 400, status_code: 'error', error: 'Invalid user mode' };
+        }
+
+        console.log(enrollmentNo);
+        // Save enrollmentNo to the user
+        user.enrollmentNo = enrollmentNo;
+        await user.save();
+
+        return { code: 200, status_code: 'success', data: { enrollmentNo }, message: 'EnrollmentNo generated successfully' };
+    } catch (error) {
+        console.error(error);
+        return { code: 500, status_code: 'error', error: 'An error occurred while generating enrollmentNo' };
+    }
+};
+
+async function getSequentialNumber(testCenterId, mode) {
+    try {
+        // Check if enrollmentNo field exists in the documents
+        const enrollmentNoExists = await User.exists({ testCenter: testCenterId, mode: mode, enrollmentNo: { $exists: true } });
+
+        let userCount;
+        let sequentialNumber;
+
+        if (enrollmentNoExists) {
+            // If enrollmentNo exists, count documents with enrollmentNo
+            userCount = await User.countDocuments({
+                testCenter: testCenterId,
+                mode: mode,
+                enrollmentNo: { $exists: true },
+            });
+        } else {
+            // If enrollmentNo does not exist, start the count from 1
+            userCount = 0;
+        }
+        if (mode === 'offline') {
+            // Increment the count and pad with leading zeros
+            sequentialNumber = (userCount + 1).toString().padStart(4, '0');
+        } else if (mode === 'online') {
+            // Increment the count and pad with leading zeros
+            sequentialNumber = (userCount + 1).toString().padStart(5, '0');
+        }
+        console.log("seqNo", sequentialNumber)
+        return sequentialNumber;
+    }
+    catch (error) {
+        console.error(error);
+        // Handle the error, possibly return a default value or throw an exception
+        return null;
+    }
+}
+
+
+module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo }
