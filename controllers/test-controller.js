@@ -103,7 +103,25 @@ const getTestByStream = async (req, res) => {
       return res.status(404).json({ code: 404, status_code: "error", error: 'Test not found' });
     }
 
-    // Assuming questions are stored in an array in the 'questions' field
+    if (req.user.mode !== "online") {
+      return res.status(403).json({ code: 403, status_code: "error", error: "Test mode is offline" })
+    }
+
+    const userAttempt = await User.findOne({
+      result: {
+        $elemMatch: {
+          userId: req.user.userId,
+          testId: test._id,
+        },
+      },
+    });
+    console.log('User Attempt:', userAttempt);
+
+    if (userAttempt) {
+      return res.status(452).json({ code: 452, status_code: "error", error: 'Test Already Attempted' });
+    }
+
+    /*------ randomly selecting test questions ----------*/
     const allQuestions = test.questions;
     // Divide questions into three groups
     const group1 = allQuestions.slice(0, 100);

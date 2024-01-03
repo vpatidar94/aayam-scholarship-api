@@ -180,7 +180,7 @@ const signin = async (req, res) => {
             return res.status(404).json({code:404, status_code: "Not Found", message: "user not found"})
         }
 
-        const token = generateToken(existingUser._id, existingUser.mobileNo, existingUser.type);
+        const token = generateToken(existingUser._id, existingUser.mobileNo, existingUser.type, existingUser.mode);
 
         return res.status(200).json({data: {token, user: existingUser}, code:200, status_code:"success", })
     }

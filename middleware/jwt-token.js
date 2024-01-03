@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const secretKey = process.env.SECRET_KEY; // secret key
 
-function generateToken(userId, mobileNo, type) {
-  const payload = { userId, mobileNo, type};
+function generateToken(userId, mobileNo, type, mode) {
+  const payload = { userId, mobileNo, type, mode};
 
   const options = { expiresIn: '6h' }; // Token expiration time
 
