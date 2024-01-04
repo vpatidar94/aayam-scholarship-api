@@ -196,9 +196,21 @@ const getUserById = async (req, res) => {
         if (!userId) {
             return res.status(400).json({ code: 404, status_code: "error", message: "userId required" })
         }
-        const user = await User.findById(userId);
-        return res.status(200).json({ data: user, code: 200, status_code: "success", message: "User Fetched Successfully", })
+        const user = await User.findById(userId).lean();
+        let userData = { ...user };
+        // Fetch TestCenter details
+        if (user.mode === 'offline') {
+        const testCenter = await TestCenter.findById(user.testCenter).lean();
 
+        userData = {
+           ...userData,
+            testCenter: testCenter
+                ? testCenter
+                : null,
+        };
+    }
+
+        return res.status(200).json({ data: userData, code: 200, status_code: "success", message: "User Fetched Successfully", })
     } catch {
         return res.status(500).json({ code: 500, status_code: "error", message: "an error occured while fetching user" })
     }
