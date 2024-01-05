@@ -32,7 +32,7 @@ const sendOTPMessage = async (req, res) => {
 const signupOTP = async (req, res) => {
     const data = req.body;
     const { mobileNo, testCenterId, mode } = data;
-    console.log("mobileNo", mobileNo)
+    //console.log("mobileNo", mobileNo)
     try {
         const existingUser = await User.findOne({ mobileNo: mobileNo })
         if (existingUser) {
@@ -54,7 +54,7 @@ const signupOTP = async (req, res) => {
         }
         // Check if the chosen test center has available capacity
         const center = await Center.findOne({ centerId: testCenterId });
-        console.log("centerrrrr", center)
+        //console.log("centerrrrr", center)
         if (center && center.capacity > 0) {
             await sendOTPMessage(req, res);
         } else {
@@ -229,7 +229,7 @@ const generateAllEnrollmentNo = async (req, res) => {
                 enrollmentNumbers.push({ userId: user._id, enrollmentNo: result.data.enrollmentNo });
             } else {
                 if (result.code === 500) {
-                    console.error(`Error generating enrollmentNo for user ${user._id}: Invalid result structure`);
+                    console.error(`Error generating enrollmentNo for user ${user._id, user.name}: Invalid result structure`);
                 }
             }
         }
@@ -286,7 +286,7 @@ const generateEnrollmentNo = async (user) => {
             return { code: 400, status_code: 'error', error: 'Invalid user mode' };
         }
 
-        console.log(enrollmentNo);
+        //console.log(enrollmentNo);
         // Save enrollmentNo to the user
         user.enrollmentNo = enrollmentNo;
         await user.save();
@@ -324,7 +324,7 @@ async function getSequentialNumber(testCenterId, mode) {
             // Increment the count and pad with leading zeros
             sequentialNumber = (userCount + 1).toString().padStart(5, '0');
         }
-        console.log("seqNo", sequentialNumber)
+       // console.log("seqNo", sequentialNumber)
         return sequentialNumber;
     }
     catch (error) {
@@ -334,5 +334,25 @@ async function getSequentialNumber(testCenterId, mode) {
     }
 }
 
+const findUserByMobileNo = async (req, res) => {
+    try {
+        const { mobileNo } = req.body;
 
-module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo }
+        if (!mobileNo) {
+            return res.status(400).json({ code: 400, status_code: "error", message: "Mobile number is required" });
+        }
+
+        const user = await User.findOne({ mobileNo })
+
+        if (!user) {
+            return res.status(404).json({ code: 404, status_code: "error", message: "User not found" });
+        }
+
+        return res.status(200).json({ data: user, code: 200, status_code: "success", message: "User found successfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ code: 500, status_code: "error", message: "An error occurred while finding the user" });
+    }
+};
+
+module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo}

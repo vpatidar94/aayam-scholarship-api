@@ -1,5 +1,5 @@
 const express = require("express");
-const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo } = require("../controllers/user-controller");
+const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo } = require("../controllers/user-controller");
 const { verifyOTP } = require("../services/user-otp-service");
 const { verifyToken, verifyAdminToken } = require("../middleware/jwt-token");
 
@@ -10,9 +10,9 @@ router.put('/signup', signup);
 router.post('/sendotp', sendOTPMessage);
 router.post('/send-signup-otp', signupOTP);
 router.post('/verifyotp', verifyOTP);
-
+router.post('/user-by-mobileNo', findUserByMobileNo);
 // private routes
-router.get('/', verifyAdminToken, getAllUsers);
+router.get('/',  getAllUsers);
 router.get('/user', verifyToken, getUserById);
 router.post('/signin-otp', signinOTP);
 router.post('/signin', signin);
