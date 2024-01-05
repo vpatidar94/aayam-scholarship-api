@@ -12,7 +12,7 @@ router.post('/send-signup-otp', signupOTP);
 router.post('/verifyotp', verifyOTP);
 router.post('/user-by-mobileNo', findUserByMobileNo);
 // private routes
-router.get('/',  getAllUsers);
+router.get('/', verifyAdminToken, getAllUsers);
 router.get('/user', verifyToken, getUserById);
 router.post('/signin-otp', signinOTP);
 router.post('/signin', signin);
