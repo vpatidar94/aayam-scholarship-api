@@ -182,6 +182,12 @@ const submitResult = async (req, res) => {
       let incorrectAnswers = 0;
       let unattemptedQuestions = 0;
       let studentResponse =[];
+      const subjects = test?.subjectNames;
+      let subjectCounts = {
+        [subjects[0]]: { correct: 0, incorrect: 0, unattempted: 0 },
+        [subjects[1]]: { correct: 0, incorrect: 0, unattempted: 0 },
+        [subjects[2]]: { correct: 0, incorrect: 0, unattempted: 0 }
+      };
       test.questions.forEach(element => {
         const questionData = reqQuestions.find(x => x.id === element.id);
       
@@ -189,14 +195,17 @@ const submitResult = async (req, res) => {
           const isCorrect = questionData?.studentAnswer === element?.correctAnswer;
           studentResponse.push({
             ...questionData,
-            correctAnswer: element.correctAnswer
+            correctAnswer: element?.correctAnswer
           });
           if (isCorrect) {
             correctAnswers++;
-          } else if (questionData.studentAnswer) {
+            subjectCounts[element?.subjectName].correct++;
+          } else if (questionData?.studentAnswer) {
             incorrectAnswers++;
+            subjectCounts[element?.subjectName].incorrect++;
           } else {
             unattemptedQuestions++;
+            subjectCounts[element?.subjectName].unattempted++;
           }
         }
       });
@@ -211,7 +220,8 @@ const submitResult = async (req, res) => {
         unattemptedCount: unattemptedQuestions,
         rank: null,
         duration: data.duration ?? 0,
-        studentResponse: studentResponse
+        studentResponse: studentResponse,
+        subjectCounts: subjectCounts,
       };
 
       const user = await User.findOne({ _id: req.user.userId });
