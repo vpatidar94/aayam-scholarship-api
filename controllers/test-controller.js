@@ -115,7 +115,6 @@ const getTestByStream = async (req, res) => {
         },
       },
     });
-    console.log('User Attempt:', userAttempt);
 
     if (userAttempt) {
       return res.status(452).json({ code: 452, status_code: "error", error: 'Test Already Attempted' });
@@ -179,21 +178,40 @@ const submitResult = async (req, res) => {
         return res.status(500).json({ code: 500, status_code: "error", error: 'Test not found.' });
       }
 
-      let scoreCount = 0;
+      let correctAnswers = 0;
+      let incorrectAnswers = 0;
+      let unattemptedQuestions = 0;
+      let studentResponse =[];
       test.questions.forEach(element => {
-        const index = reqQuestions.some(x => x.id === element.id && x?.studentAnswer === element?.correctAnswer);
-        if (index) {
-          scoreCount++;
+        const questionData = reqQuestions.find(x => x.id === element.id);
+      
+        if (questionData) {
+          const isCorrect = questionData?.studentAnswer === element?.correctAnswer;
+          studentResponse.push({
+            ...questionData,
+            correctAnswer: element.correctAnswer
+          });
+          if (isCorrect) {
+            correctAnswers++;
+          } else if (questionData.studentAnswer) {
+            incorrectAnswers++;
+          } else {
+            unattemptedQuestions++;
+          }
         }
       });
+      let score = correctAnswers*4 - incorrectAnswers;
 
       const resResult = {
         userId: req.user.userId,
         testId: test._id,
-        score: scoreCount,
+        score: score,
+        correctCount: correctAnswers,
+        incorrectCount : incorrectAnswers,
+        unattemptedCount: unattemptedQuestions,
         rank: null,
         duration: data.duration ?? 0,
-        studentResponse: reqQuestions
+        studentResponse: studentResponse
       };
 
       const user = await User.findOne({ _id: req.user.userId });
