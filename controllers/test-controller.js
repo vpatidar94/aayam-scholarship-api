@@ -25,29 +25,6 @@ const addTest = async (req, res) => {
   }
 }
 
-const getTest = async (req, res) => {
-  try {
-    const { testId } = req.params;
-    if (!testId) {
-      return res.status(400).json({ code: 400, status_code: "error", error: 'Test id required' });
-    }
-    const test = await Test.find({ id: testId });
-    if (!test || test.length <= 0) {
-      return res.status(404).json({ code: 404, status_code: "error", error: 'Test not found' });
-    }
-    else {
-      const testIdCheck = test[0]._id.toString()
-      const isTestAttempted = await Result.findOne({ testId: testIdCheck, userId: req.user.userId });
-      if (isTestAttempted) {
-        return res.status(452).json({ code: 452, status_code: "error", error: 'Test Already Attempted' });
-      }
-    }
-    return res.status(200).json({ data: test[0], code: 200, status_code: "success", message: "Test fetched successfully." })
-  } catch (error) {
-    res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
-  }
-}
-
 const deleteTest = async (req, res) => {
   try {
     const { id } = req.params;
@@ -68,12 +45,12 @@ const deleteTest = async (req, res) => {
 
 const getTestDetail = async (req, res) => {
   try {
-    const { testId } = req.params;
-    if (!testId) {
-      return res.status(400).json({ code: 400, status_code: "error", error: 'Test id required' });
+    const { stream } = req.params;
+    if (!stream) {
+      return res.status(400).json({ code: 400, status_code: "error", error: 'stream required' });
     }
 
-    const test = await Test.find({ _id: testId });
+    const test = await Test.find({ stream: stream });
 
     if (!test || test.length <= 0) {
       return res.status(404).json({ code: 404, status_code: "error", error: 'Test not found' });
@@ -85,8 +62,6 @@ const getTestDetail = async (req, res) => {
     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
   }
 }
-
-
 
 /*--------------- New Apis ----------------------*/
 
@@ -248,7 +223,6 @@ const submitResult = async (req, res) => {
 
 
 exports.addTest = addTest;
-exports.getTest = getTest;
 exports.getTestDetail = getTestDetail;
 exports.getAllTests = getAllTests;
 exports.submitResult = submitResult;

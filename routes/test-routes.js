@@ -1,10 +1,10 @@
 const express = require("express");
 const { verifyToken, verifyAdminToken } = require("../middleware/jwt-token");
-const { addTest, getTest, submitResult, getTestDetail, deleteTest, getTestByStream, getAllTests } = require("../controllers/test-controller");
+const { addTest, submitResult, getTestDetail, deleteTest, getTestByStream, getAllTests } = require("../controllers/test-controller");
 const router = express.Router();
 
 // protected routes
-router.get("/getTestDetail/:testId", verifyToken, getTestDetail);
+router.get("/getTestDetail/:stream", verifyToken, getTestDetail);
 router.post("/submitResult", verifyToken, submitResult);
 router.get("/getTest/:stream", verifyToken, getTestByStream);
 

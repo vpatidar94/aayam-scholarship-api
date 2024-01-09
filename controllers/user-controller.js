@@ -355,4 +355,18 @@ const findUserByMobileNo = async (req, res) => {
     }
 };
 
-module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo}
+const getAllUsersByStream = async (req, res) => {
+    const {stream} = req.params;
+    try{
+        const users = await User.find({stream: stream, mode:"online"}).select('-result.studentResponse');
+        
+        return res.status(200).json({data: users, code: 200, status_code: "success", });
+    }
+    catch(error){
+        return res.status(500).json()({code:500, status_code: "error", message:"error in finding users"})
+    }
+}
+
+module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById,
+                generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream};
+
