@@ -358,7 +358,9 @@ const findUserByMobileNo = async (req, res) => {
 const getAllUsersByStream = async (req, res) => {
     const {stream} = req.params;
     try{
-        const users = await User.find({stream: stream, mode:"online"}).select('-result.studentResponse');
+        const users = await User.find({stream: stream, mode:"online"})
+                    .select('-result.studentResponse')
+                    .sort({ 'result.score': -1 });
         
         return res.status(200).json({data: users, code: 200, status_code: "success", });
     }
