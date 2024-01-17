@@ -5,6 +5,7 @@ const sendSMS = require("../services/sms-service");
 const { generateOTP, saveOTP, verifyOTP } = require("../services/user-otp-service");
 const { sendTestInfo } = require("../services/whatsapp-service");
 const TestCenter = require("../models/test-center");
+const result = require("../models/result");
 
 const sendOTPMessage = async (req, res) => {
     const data = req.body;
@@ -200,15 +201,15 @@ const getUserById = async (req, res) => {
         let userData = { ...user };
         // Fetch TestCenter details
         if (user.mode === 'offline') {
-        const testCenter = await TestCenter.findById(user.testCenter).lean();
+            const testCenter = await TestCenter.findById(user.testCenter).lean();
 
-        userData = {
-           ...userData,
-            testCenter: testCenter
-                ? testCenter
-                : null,
-        };
-    }
+            userData = {
+                ...userData,
+                testCenter: testCenter
+                    ? testCenter
+                    : null,
+            };
+        }
 
         return res.status(200).json({ data: userData, code: 200, status_code: "success", message: "User Fetched Successfully", })
     } catch {
@@ -324,7 +325,7 @@ async function getSequentialNumber(testCenterId, mode) {
             // Increment the count and pad with leading zeros
             sequentialNumber = (userCount + 1).toString().padStart(5, '0');
         }
-       // console.log("seqNo", sequentialNumber)
+        // console.log("seqNo", sequentialNumber)
         return sequentialNumber;
     }
     catch (error) {
@@ -356,19 +357,191 @@ const findUserByMobileNo = async (req, res) => {
 };
 
 const getAllUsersByStream = async (req, res) => {
-    const {stream} = req.params;
-    try{
-        const users = await User.find({stream: stream, mode:"online"})
-                    .select('-result.studentResponse')
-                    .sort({ 'result.score': -1 });
-        
-        return res.status(200).json({data: users, code: 200, status_code: "success", });
+    const { stream } = req.params;
+    try {
+        const users = await User.find({ stream: stream })
+            .select('-result.studentResponse')
+            .sort({ 'result.score': -1 });
+
+        return res.status(200).json({ data: users, code: 200, status_code: "success", });
     }
-    catch(error){
-        return res.status(500).json()({code:500, status_code: "error", message:"error in finding users"})
+    catch (error) {
+        return res.status(500).json()({ code: 500, status_code: "error", message: "error in finding users" })
     }
 }
 
-module.exports = { sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById,
-                generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream};
+const getAllUsersByClass = async (req, res) => {
+    const { selectedStream } = req.body;
+
+    try {
+        let users;
+
+        const streamMappings = {
+            '11': ['11-PCB', '11-PCM'],
+            '12': ['12-PCB', '12-PCM'],
+        };
+
+        const streamsToFetch = streamMappings[selectedStream] || [selectedStream];
+
+        users = await User.find({
+            stream: { $in: streamsToFetch }
+        }).select('-result.studentResponse').sort({ 'result.score': -1 });
+
+        return res.status(200).json({ data: users, code: 200, status_code: "success" });
+    } catch (error) {
+        return res.status(500).json({ code: 500, status_code: "error", message: "error in finding users" });
+    }
+};
+
+
+const updateOfflineResults = async (req, res) => {
+    const { offlineResults } = req.body;
+    try {
+        const updatedUsers = await Promise.all(offlineResults.map(async (result) => {
+            const user = await User.findOne({ enrollmentNo: result.studentRollNo.toString() });
+
+            if (!user) {
+                return res.status(404).json({ code: 404, status_code: `"user not found ${result.studentRollNo.toString()}"` });
+            }
+            const formattedUserData = {
+                userId: user._id,
+                name: result.studentName,
+                rollNo: result.studentRollNo,
+                score: result.score,
+                correctCount: result.correctCount,
+                incorrectCount: result.incorrectCount,
+                unattemptedCount: result.unattemptedCount,
+                rank: null,
+                duration: 7200,  // Replace with the actual duration
+                //---------------for 9/10 students-----------
+                // subjectCounts: {
+                //     "SCIENCE": {
+                //         correct: result.scienceR,
+                //         incorrect: result.scienceW,
+                //         unattempted: result.scienceU,
+                //     },
+                //     "SOCIAL-SCIENCE": {
+                //         correct: result.socialScienceR,
+                //         incorrect: result.socialScienceW,
+                //         unattempted: result.socialScienceU,
+                //     },
+                //     "MATHS": {
+                //         correct: result.mathsR,
+                //         incorrect: result.mathsW,
+                //         unattempted: result.mathsU,
+                //     },
+                // },
+
+                //---- for 11/12 PCM students------
+                // subjectCounts: {
+                //     "PHYSICS": {
+                //         correct: result.physicsR,
+                //         incorrect: result.physicsW,
+                //         unattempted: result.physicsU,
+                //     },
+                //     "CHEMISTRY": {
+                //         correct: result.chemistryR,
+                //         incorrect: result.chemistryW,
+                //         unattempted: result.chemistryU,
+                //     },
+                //     "MATHS": {
+                //         correct: result.mathsR,
+                //         incorrect: result.mathsW,
+                //         unattempted: result.mathsU,
+                //     },
+                // },
+
+                //------- for 11/12 PCB students-----
+                subjectCounts: {
+                    "PHYSICS": {
+                        correct: result.physicsR,
+                        incorrect: result.physicsW,
+                        unattempted: result.physicsU,
+                    },
+                    "CHEMISTRY": {
+                        correct: result.chemistryR,
+                        incorrect: result.chemistryW,
+                        unattempted: result.chemistryU,
+                    },
+                    "BIOLOGY": {
+                        correct: result.biologyR,
+                        incorrect: result.biologyW,
+                        unattempted: result.biologyU,
+                    },
+                },
+            };
+
+            user.result.push(formattedUserData);
+            await user.save();
+
+            // Return the updated user data
+            return user;
+        }));
+
+        return res.status(200).json({ code: 200, status_code: "success", message: "offline results updated successfully", data: updatedUsers });
+    }
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "error" });
+    }
+}
+
+const generateRankByStream = async (req, res) => {
+    const { stream } = req.body;
+    try {
+        const sortedScores = await User.find({ stream, 'result.0': { $exists: true } })
+            .select('-result.studentResponse')
+            .select('-result.subjectCounts')
+            .sort({ 'result.0.score': -1 });
+
+        // Iterate over sorted scores and update the rank in each user's result array
+        await Promise.all(sortedScores.map(async (user, index) => {
+            user.result[0].rank = index + 1;
+            // await user.save();
+        }));
+
+        return res.status(200).json({ data: sortedScores, code: 200, status_code: "success" })
+    }
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "something went wrong" })
+    }
+}
+
+const generateRankByClass = async (req, res) => {
+    const { selectedStream } = req.body;
+
+    try {
+        const streamMappings = {
+            '11': ['11-PCB', '11-PCM'],
+            '12': ['12-PCB', '12-PCM'],
+        };
+
+        const streamsToFetch = streamMappings[selectedStream] || [selectedStream];
+
+        const sortedScores = await User.find({
+            stream: { $in: streamsToFetch },
+            'result.0': { $exists: true }
+        })
+            .select('-result.studentResponse')
+            .select('-result.subjectCounts')
+            .sort({ 'result.0.score': -1 });
+
+        // Iterate over sorted scores and update the rank in each user's result array
+        await Promise.all(sortedScores.map(async (user, index) => {
+            user.result[0].rank = index + 1;
+            // await user.save();
+    
+        }));
+
+        return res.status(200).json({ data: sortedScores, code: 200, status_code: "success" })
+    }
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "something went wrong" })
+    }
+}
+
+module.exports = {
+    sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById,
+    generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream,
+    updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass
+};
 
