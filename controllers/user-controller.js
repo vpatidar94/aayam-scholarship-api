@@ -563,7 +563,7 @@ const calculateNormalizedScores = async (req, res) => {
         await Promise.all(users.map(async (user) => {
             const rawScore = user.result[0].score || 0; // Retrieve 'rawScore' from the user's result
             const mode = user.mode;
-            const normalizationFactor = mode === 'offline' ? 1.1 : 0.85;
+            const normalizationFactor = mode === 'offline' ? 1.1 : 0.9;
 
             // Directly set normalizedScore in user.result[0]
             user.result[0].normalizedScore = Math.min((rawScore * normalizationFactor).toFixed(2), 235);
