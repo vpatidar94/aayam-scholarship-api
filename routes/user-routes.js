@@ -1,5 +1,5 @@
 const express = require("express");
-const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream, updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass } = require("../controllers/user-controller");
+const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream, updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass, sendWpMessageByClass, calculateNormalizedScores } = require("../controllers/user-controller");
 const { verifyOTP } = require("../services/user-otp-service");
 const { verifyToken, verifyAdminToken } = require("../middleware/jwt-token");
 
@@ -23,5 +23,8 @@ router.get('/details/:stream', verifyAdminToken, getAllUsersByStream); // /strea
 router.post('/generate-rank', generateRankByStream)
 router.post('/result-by-class', getAllUsersByClass) // /result/class
 router.post('/rank-by-class', generateRankByClass)
+router.post("/send-rank-msg-by-class", sendWpMessageByClass);
+router.post('/generate-normalized-score', calculateNormalizedScores);
+
 
 module.exports = router;

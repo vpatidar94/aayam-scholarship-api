@@ -42,7 +42,7 @@ const sendTestInfo = async (mobileNo, mode, testDate) => {
 const sendRank = async (user, std, outOf, title, totalPoints) => {
     try {
         const payload = {
-            "to": '91' + user.mobileNo,
+            "to": '91' + '8871688429',
             "recipient_type": "individual",
             "type": "template",
             "template": {
@@ -57,7 +57,7 @@ const sendRank = async (user, std, outOf, title, totalPoints) => {
                         "parameters": [
                             {
                                 "type": "text",
-                                "text": std.rank + '', //rank std.rank
+                                "text": std.result[0].rank + '', //rank std.rank
                             },
                             {
                                 "type": "text",

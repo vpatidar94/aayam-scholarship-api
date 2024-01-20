@@ -3,7 +3,7 @@ const Center = require("../models/test-center");
 const User = require("../models/user");
 const sendSMS = require("../services/sms-service");
 const { generateOTP, saveOTP, verifyOTP } = require("../services/user-otp-service");
-const { sendTestInfo } = require("../services/whatsapp-service");
+const { sendTestInfo, sendRank } = require("../services/whatsapp-service");
 const TestCenter = require("../models/test-center");
 const result = require("../models/result");
 
@@ -508,6 +508,40 @@ const generateRankByStream = async (req, res) => {
 
 const generateRankByClass = async (req, res) => {
     const { selectedStream } = req.body;
+    try {
+        const streamMappings = {
+            '11': ['11-PCB', '11-PCM'],
+            '12': ['12-PCB', '12-PCM'],
+        };
+
+        const streamsToFetch = streamMappings[selectedStream] || [selectedStream];
+
+        const users = await User.find({
+            stream: { $in: streamsToFetch },
+            'result.0': { $exists: true }
+        })
+            .select('-result.studentResponse')
+            .select('-result.subjectCounts')
+            .sort({ 'result.0.normalizedScore': -1 });
+
+        // Generate rank based on the sorted user objects
+        await Promise.all(users.map(async (user, index) => {
+            user.result[0].rank = index + 1;
+             // Mark 'result' array as modified
+             user.markModified('result');
+            // Save the updated rank to the database
+            await user.save();
+        }));
+
+        return res.status(200).json({ data: users, code: 200, status_code: "success", message: "result generated successfully" })
+    }
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "something went wrong" })
+    }
+}
+
+const calculateNormalizedScores = async (req, res) => {
+    const { selectedStream } = req.body;
 
     try {
         const streamMappings = {
@@ -517,31 +551,79 @@ const generateRankByClass = async (req, res) => {
 
         const streamsToFetch = streamMappings[selectedStream] || [selectedStream];
 
-        const sortedScores = await User.find({
+        const users = await User.find({
             stream: { $in: streamsToFetch },
             'result.0': { $exists: true }
         })
             .select('-result.studentResponse')
-            .select('-result.subjectCounts')
-            .sort({ 'result.0.score': -1 });
+            .select('-result.subjectCounts');
 
-        // Iterate over sorted scores and update the rank in each user's result array
-        await Promise.all(sortedScores.map(async (user, index) => {
-            user.result[0].rank = index + 1;
-            // await user.save();
-    
+        // Iterate over users and update the normalized score in each user's result array
+        await Promise.all(users.map(async (user) => {
+            const rawScore = user.result[0].score || 0; // Retrieve 'rawScore' from the user's result
+            const mode = user.mode;
+            const normalizationFactor = mode === 'offline' ? 1.1 : 0.85;
+
+            // Directly set normalizedScore in user.result[0]
+            user.result[0].normalizedScore = Math.min((rawScore * normalizationFactor).toFixed(2), 235);
+            // Mark 'result' array as modified
+            user.markModified('result');
+            // Save the updated user object to the database
+            await user.save();
         }));
 
-        return res.status(200).json({ data: sortedScores, code: 200, status_code: "success" })
+        return res.status(200).json({ data: users, code: 200, status_code: "success", message: "Normalized scores calculated and saved successfully" });
+    } catch (error) {
+        return res.status(500).json({ code: 500, status_code: "something went wrong" });
     }
-    catch (error) {
-        return res.status(500).json({ code: 500, status_code: "something went wrong" })
+};
+
+
+const sendWpMessageByClass = async (req, res) => {
+    const data = req.body;
+    const { stream } = data;
+    try {
+        const streamMappings = {
+            '11': ['11-PCB', '11-PCM'],
+            '12': ['12-PCB', '12-PCM'],
+        };
+
+        const streamsToFetch = streamMappings[stream] || [stream];
+        const userResults = await User.find({
+            stream: { $in: streamsToFetch },
+            'result.0': { $exists: true }
+        })
+        // Get the score of last test given
+        for (const std of userResults) {
+            try {
+                const user = await User.find({ _id: std._id });
+                const title = 'jeet scholarship test'
+                const totalPoints = 1000;
+                const totalStudents = 5500
+                if (user.length > 0 && !!user[0]?.mobileNo)
+                    await sendRank(user[0], std, totalStudents, title, totalPoints);
+                //await sendRank(user[0], std, totalStudents, title, totalPoints);
+            } catch (error) {
+                console.error('Error sending WhatsApp message:', error);
+            }
+        }
+
+        res.status(200).json({
+            data: userResults,
+            code: 200,
+            status_code: 'success',
+            message: 'Whatsapp messages send successfully.',
+        });
+
+    } catch (error) {
+        res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
     }
 }
 
 module.exports = {
     sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById,
     generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream,
-    updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass
+    updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass,
+    sendWpMessageByClass, calculateNormalizedScores
 };
 
