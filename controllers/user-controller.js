@@ -384,8 +384,9 @@ const getAllUsersByClass = async (req, res) => {
         const streamsToFetch = streamMappings[selectedStream] || [selectedStream];
 
         users = await User.find({
-            stream: { $in: streamsToFetch }
-        }).select('-result.studentResponse').sort({ 'result.score': -1 });
+            stream: { $in: streamsToFetch },
+        
+        }).select('-result.studentResponse').sort({  'result.normalizedScore': -1,'result.rank': 1,'result.score': -1,  });
 
         return res.status(200).json({ data: users, code: 200, status_code: "success" });
     } catch (error) {
