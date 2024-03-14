@@ -76,4 +76,6 @@ userSchema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.model("User", userSchema);
+// Specify the collection name when creating the model
+
+module.exports = mongoose.model("User", userSchema, "asetusers");
