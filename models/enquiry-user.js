@@ -48,6 +48,7 @@ const enquiryUserSchema = new Schema({
     admissionStatus: {
         type: String,
         enum: ['DONE', 'PENDING', 'NOT_INTERESTED', 'INTERESTED'],
+        default: 'PENDING'
     },
     enrollmentNo: {
         type: String,

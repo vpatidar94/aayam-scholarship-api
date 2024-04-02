@@ -4,7 +4,7 @@ const secretKey = process.env.SECRET_KEY; // secret key
 function generateToken(userId, mobileNo, type, mode) {
   const payload = { userId, mobileNo, type, mode};
 
-  const options = { expiresIn: '6h' }; // Token expiration time
+  const options = { expiresIn: '60h' }; // Token expiration time
 
   return jwt.sign(payload, secretKey, options);
 }
