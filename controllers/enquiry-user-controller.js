@@ -1,14 +1,14 @@
 const EnquiryUser = require('../models/enquiry-user');
 
 // add enquiry user
-const addEnquiryUser = async( req, res) => {
+const addEnquiryUser = async (req, res) => {
     const data = req.body;
-    const {mobileNo} = data;
+    const { mobileNo } = data;
 
-    try{
+    try {
         //if existing user
-        const existingUser = await EnquiryUser.findOne({mobileNo});
-        if(existingUser){
+        const existingUser = await EnquiryUser.findOne({ mobileNo });
+        if (existingUser) {
             return res.status(400).json({ code: 400, status_code: "error", message: "User already exists" });
         }
 
@@ -33,11 +33,11 @@ const addEnquiryUser = async( req, res) => {
             enquiryNo: newEnquiryNo
         })
         const savedEnquiryUser = await newEnquiryUser.save();
-        return res.status(200).json({ data: savedEnquiryUser , code: 200, status_code: "success", message: "Enquiry User added successfully" });
+        return res.status(200).json({ data: savedEnquiryUser, code: 200, status_code: "success", message: "Enquiry User added successfully" });
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({code:500, status_code: "error", message: "something Went Wrong"})
+        return res.status(500).json({ code: 500, status_code: "error", message: "something Went Wrong" })
     }
 }
 
@@ -54,7 +54,33 @@ const getAllEnquiryUsers = async (req, res) => {
     }
 }
 
+const updateEnquiryUser = async (req, res) => {
+    const userId = req.body.userId;
+    const updatedData = req.body;
+    try {
+        const updatedEnquiryUser = await EnquiryUser.findByIdAndUpdate(userId, updatedData);
+
+        if (!updatedEnquiryUser) {
+            return res.status(404).json({
+                code: 404,
+                status_code: "not_found",
+                message: "Enquiry not found"
+            });
+        }
+        return res.status(201).json({ code: 201, status_code: "success", message: "Enquiry Updated Successfully" })
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            status_code: "error",
+            message: "Internal Server Error"
+        });
+    }
+}
+
 module.exports = {
     addEnquiryUser,
-    getAllEnquiryUsers
+    getAllEnquiryUsers,
+    updateEnquiryUser
 }
