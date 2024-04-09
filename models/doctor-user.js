@@ -11,6 +11,12 @@ const doctorSchema = new Schema({
     dob: {
         type: Date,
     },
+    doa: {
+        type: Date
+    },
+    registrationNo: {
+        type: String,
+    },
     age: {
         type: String
     },
