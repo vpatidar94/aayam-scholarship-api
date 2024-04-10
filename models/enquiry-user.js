@@ -53,6 +53,9 @@ const enquiryUserSchema = new Schema({
     enrollmentNo: {
         type: String,
     },
+    remark: {
+        type: String,
+    },
     dob: {
         type: String
     },

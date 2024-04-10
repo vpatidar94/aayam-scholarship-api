@@ -44,7 +44,7 @@ const addEnquiryUser = async (req, res) => {
 // Get all enquiry users
 const getAllEnquiryUsers = async (req, res) => {
     try {
-        const allUsers = await EnquiryUser.find();
+        const allUsers = await EnquiryUser.find().sort({ 'createdAt': -1 });
 
         return res.status(200).json({ data: allUsers, code: 200, status_code: "success", message: "All enquiry users fetched successfully" });
     } catch (error) {
