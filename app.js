@@ -10,6 +10,7 @@ const testRouter = require("./routes/test-routes");
 const resultRouter = require("./routes/result-routes");
 const enquiryUserRouter = require("./routes/enquiry-user-routes");
 const doctorRouter = require("./routes/doctor-routes");
+const margdarshakRouter = require("./routes/margdarshak-routes")
 
 app.use(express.json());
 
@@ -32,6 +33,7 @@ app.use("/test", cors(corsOptions), testRouter);
 app.use("/result", cors(corsOptions), resultRouter);
 app.use("/enquiry", cors(corsOptions), enquiryUserRouter);
 app.use("/doctor", cors(corsOptions), doctorRouter);
+app.use("/margdarshak", cors(corsOptions), margdarshakRouter);
 
 // Mongoose connection ----------
 const databaseURL = process.env.DATABASE_URL;
