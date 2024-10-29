@@ -3,6 +3,6 @@ const { addMargdarshak, getAllMargdarshaks } = require("../controllers/margdarsh
 const router = express.Router();
 
 router.post('/add', addMargdarshak);
-router.get('/all', getAllMargdarshaks);
+router.get('/getAllMargdarshaks', getAllMargdarshaks);
 
 module.exports = router;
