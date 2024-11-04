@@ -82,6 +82,9 @@ const enquiryUserSchema = new Schema({
     result: {
         type: Array,
         default: []
+    },
+    margdarshak: {
+        type: String
     }
 },
     {
