@@ -15,7 +15,7 @@ const margdarshakRouter = require("./routes/margdarshak-routes")
 app.use(express.json());
 
 // Use the CORS handler --------
-const allowedOrigins = ['http://localhost:4400', 'https://scholarship-web-gcqrn.ondigitalocean.app', 'https://jeet.aayamcareerinstitute.com', 'https://aset.aayamcareerinstitute.com'];
+const allowedOrigins = ['http://localhost:4400', 'https://scholarship-web-gcqrn.ondigitalocean.app', 'https://jeet.aayamcareerinstitute.com', 'https://aset.aayamcareerinstitute.com', 'https://saksham-web-baurb.ondigitalocean.app'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
