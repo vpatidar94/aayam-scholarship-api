@@ -50,7 +50,7 @@ const employeeSchema = new Schema({
     district: {
         type: String,
     },
-    pin_code: {
+    pinCode: {
         type: String,
     },
     state: {
@@ -68,7 +68,7 @@ const employeeSchema = new Schema({
     designation: {
         type: String,
     },
-    work_experience: {
+    workExperience: {
         type: String,
     },
     qualification: {
@@ -77,7 +77,7 @@ const employeeSchema = new Schema({
     degree: {
         type: String,
     },
-    yoPassing: {
+    yearOfPassing: {
         type: String,
     },
 
@@ -90,7 +90,7 @@ const employeeSchema = new Schema({
     pancard:  {
         type: String,
     },
-    aadhar_card:  {
+    aadharDard:  {
         type: String,
     },
 
