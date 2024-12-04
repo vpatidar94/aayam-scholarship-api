@@ -90,7 +90,7 @@ const employeeSchema = new Schema({
     pancard:  {
         type: String,
     },
-    aadharDard:  {
+    aadharCard:  {
         type: String,
     },
 
