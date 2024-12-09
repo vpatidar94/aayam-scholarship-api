@@ -34,7 +34,33 @@ const getAllEmployees = async (req, res) => {
     }
 }
 
+const updateEmployeeUser = async (req, res) => {
+    const userId = req.body.userId;
+    const updatedData = req.body;
+    try {
+        const updatedEmployeeUser = await Employee.findByIdAndUpdate(userId, updatedData);
+
+        if (!updatedEmployeeUser) {
+            return res.status(404).json({
+                code: 404,
+                status_code: "not_found",
+                message: "Employee not found"
+            });
+        }
+        return res.status(201).json({ code: 201, status_code: "success", message: "Employee Updated Successfully" })
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            status_code: "error",
+            message: "Internal Server Error"
+        });
+    }
+}
+
 module.exports = {
     addEmployee,
-    getAllEmployees
+    getAllEmployees,
+    updateEmployeeUser
 }
