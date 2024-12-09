@@ -113,20 +113,24 @@ const employeeSchema = new Schema({
 
     
     basicSalary:{
-        type: String,
+        type: Number,
     },
     hra: {
-        type: String,
+        type: Number,
     },
     ta: {
-        type: String,
+        type: Number,
     },
     pf: {
-        type: String,
+        type: Number,
     },
     tds:{
-        type: String,
+        type: Number,
     },
+    totalSalary:{
+        type: Number,
+        default: basicSalary + hra + ta + pf + tds
+    }
 
 },
     {
