@@ -116,6 +116,9 @@ const employeeSchema = new Schema({
     },
 
 
+    aayamDesignation: {
+        type: String,
+    },
 
     basicSalary: {
         type: Number,
