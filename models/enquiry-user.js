@@ -21,6 +21,9 @@ const enquiryUserSchema = new Schema({
     stream: {
         type: String,
     },
+    medium: {
+        type: String,
+    },
     prevClass: {
         type: String,
     },
@@ -85,6 +88,9 @@ const enquiryUserSchema = new Schema({
     },
     margdarshak: {
         type: String
+    },
+    fee: {
+        type:String
     }
 },
     {
