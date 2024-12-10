@@ -81,21 +81,26 @@ const employeeSchema = new Schema({
         type: String,
     },
 
-
-
-
-    photo:  {
+    aayamDepartment: {
         type: String,
     },
-    pancard:  {
-        type: String,
-    },
-    aadharCard:  {
-        type: String,
+    dateOfJoining: {
+        type: Date
     },
 
 
-    
+    photo: {
+        type: String,
+    },
+    pancard: {
+        type: String,
+    },
+    aadharCard: {
+        type: String,
+    },
+
+
+
 
     acHolderName: {
         type: String,
@@ -111,8 +116,8 @@ const employeeSchema = new Schema({
     },
 
 
-    
-    basicSalary:{
+
+    basicSalary: {
         type: Number,
     },
     hra: {
@@ -124,10 +129,10 @@ const employeeSchema = new Schema({
     pf: {
         type: Number,
     },
-    tds:{
+    tds: {
         type: Number,
     },
-    totalSalary:{
+    totalSalary: {
         type: Number,
         // default: basicSalary + hra + ta + pf + tds
     }
