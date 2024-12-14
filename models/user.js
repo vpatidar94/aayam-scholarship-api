@@ -78,4 +78,4 @@ userSchema.pre('save', function (next) {
 
 // Specify the collection name when creating the model
 
-module.exports = mongoose.model("User", userSchema, "asetusers");
+module.exports = mongoose.model("User", userSchema, "asetusers2425");
