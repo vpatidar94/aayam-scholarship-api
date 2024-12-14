@@ -2,7 +2,8 @@ const https = require('https');
 
 const sendTestInfo = async (mobileNo, mode, testDate) => {
     try {
-        const payload ={
+        const payload =    
+        {
             "to": '91' + mobileNo,
             "recipient_type": "individual",
             "type": "template",
@@ -11,15 +12,11 @@ const sendTestInfo = async (mobileNo, mode, testDate) => {
                     "policy": "deterministic",
                     "code": "en"
                 },
-                "name": "jeet_reg",
+                "name": "aset2425",
                 "components": [
                     {
                         "type": "body",
                         "parameters": [
-                            {
-                                "type": "text",
-                                "text": mode + ''
-                            },
                             {
                                 "type": "text",
                                 "text": testDate + ''
@@ -29,9 +26,6 @@ const sendTestInfo = async (mobileNo, mode, testDate) => {
                 ]
             }
         }
-        
-        
-        // Assuming WPMessageTemplate is a function that sends the WhatsApp message
         return await WPMessageTemplate(payload);
     } catch (error) {
         console.log('Error sending WhatsApp message: ' + error);
