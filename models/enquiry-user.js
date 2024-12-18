@@ -97,4 +97,4 @@ const enquiryUserSchema = new Schema({
         timestamps: true,
     })
 
-module.exports = mongoose.model("enquiryUser", enquiryUserSchema);
+module.exports = mongoose.model("enquiryUser", enquiryUserSchema, "enquiryUser2425");

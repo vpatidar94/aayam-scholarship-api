@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const doctorSchema = new Schema({
     name: {
         type: String,
+        // required: true
     },
     maritalStatus: {
         type: String,
