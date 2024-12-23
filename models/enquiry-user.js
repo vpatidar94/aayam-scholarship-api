@@ -91,7 +91,12 @@ const enquiryUserSchema = new Schema({
     },
     fee: {
         type:String
-    }
+    },
+    visitedStatus: {
+        type: String,
+        enum: ['VISITED', 'NOT_VISITED'],
+        default: 'VISITED'
+    },
 },
     {
         timestamps: true,
