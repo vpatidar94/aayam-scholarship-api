@@ -99,8 +99,8 @@ const enquiryUserSchema = new Schema({
     },
     leadStatus: {
         type: String,
-        enum: ['GENERAL_LEAD', 'HOT_LEAD', 'REJECTED_LEAD'],
-        default: 'GENERAL_LEAD'
+        enum: ['GENERAL_LEAD', 'HOT_LEAD', 'REJECTED_LEAD','NONE'],
+        default: 'NONE'
     },
 },
     {
