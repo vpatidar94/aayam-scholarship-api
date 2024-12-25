@@ -97,6 +97,11 @@ const enquiryUserSchema = new Schema({
         enum: ['VISITED', 'NOT_VISITED'],
         default: 'VISITED'
     },
+    leadStatus: {
+        type: String,
+        enum: ['GENERAL_LEAD', 'HOT_LEAD', 'REJECTED_LEAD'],
+        default: ''
+    },
 },
     {
         timestamps: true,
