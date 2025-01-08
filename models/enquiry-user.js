@@ -102,6 +102,10 @@ const enquiryUserSchema = new Schema({
         enum: ['GENERAL_LEAD', 'HOT_LEAD', 'REJECTED_LEAD','NONE'],
         default: 'NONE'
     },
+    followUpDate: {
+        type: Date,
+        default: Date.now,
+    },
 },
     {
         timestamps: true,
