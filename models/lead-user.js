@@ -28,7 +28,6 @@ const leadSchema = new Schema({
     },
     email: {
         type: String,
-        unique: true
     },
     gender: {
         type: String,
