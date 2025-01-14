@@ -1,6 +1,6 @@
 const express = require("express");
 const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream, updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass, sendWpMessageByClass, calculateNormalizedScores, signinNavigatorOTP } = require("../controllers/user-controller");
-const { verifyOTP } = require("../services/user-otp-service");
+const { verifyOTP, verifyNavigatorOTP } = require("../services/user-otp-service");
 const { verifyToken, verifyAdminToken } = require("../middleware/jwt-token");
 
 const router = express.Router();
@@ -10,6 +10,7 @@ router.put('/signup', signup);
 router.post('/sendotp', sendOTPMessage);
 router.post('/send-signup-otp', signupOTP);
 router.post('/verifyotp', verifyOTP);
+router.post('/verifyNavigatorOtp', verifyNavigatorOTP),
 router.post('/user-by-mobileNo', findUserByMobileNo);
 router.post('/update-offline-results', updateOfflineResults)
 // private routes
