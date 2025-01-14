@@ -106,6 +106,11 @@ const enquiryUserSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    navigatorStatus: {
+        type: String,
+        enum: ['NAVIGATOR', 'NONE'],
+        default: 'NONE'
+    }
 },
     {
         timestamps: true,
