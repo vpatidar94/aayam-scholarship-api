@@ -1,5 +1,5 @@
 const express = require("express");
-const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream, updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass, sendWpMessageByClass, calculateNormalizedScores } = require("../controllers/user-controller");
+const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream, updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass, sendWpMessageByClass, calculateNormalizedScores, signinNavigatorOTP } = require("../controllers/user-controller");
 const { verifyOTP } = require("../services/user-otp-service");
 const { verifyToken, verifyAdminToken } = require("../middleware/jwt-token");
 
@@ -16,6 +16,7 @@ router.post('/update-offline-results', updateOfflineResults)
 router.get('/', verifyAdminToken, getAllUsers);
 router.get('/user', verifyToken, getUserById); // /{:id}
 router.post('/signin-otp', signinOTP);
+router.post('/signin-navigator-otp', signinNavigatorOTP);
 router.post('/signin', signin);
 router.put('/generate-enrolNo', generateSingleEnrollmentNo);
 router.put ('/genrate-all-enrolNo', generateAllEnrollmentNo);
