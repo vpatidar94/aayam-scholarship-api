@@ -292,6 +292,23 @@ const signinOTP = async (req, res) => {
     }
 }
 
+// NEWLY ADDED FOR NAVIGATOR-FORM START
+const signinNavigatorOTP = async (req, res) => {
+    const { mobileNo } = req.body;
+    try {
+        // const existingUser = await User.findOne({ mobileNo: mobileNo })
+        // if (!existingUser) {
+        //     return res.status(404).json({ code: 404, status_code: "Not Found", message: "user not found" })
+        // }
+        await sendOTPMessage(req, res);
+    }
+    catch (error) {
+        return res.status(500).json({ code: 500, status_code: "error" })
+    }
+}
+// NEWLY ADDED FOR NAVIGATOR-FORM END
+
+
 const signin = async (req, res) => {
     const { mobileNo } = req.body;
 
@@ -746,7 +763,7 @@ const sendWpMessageByClass = async (req, res) => {
 }
 
 module.exports = {
-    sendOTPMessage, signupOTP, signup, getAllUsers, signinOTP, signin, getUserById,
+    sendOTPMessage, signupOTP,signinNavigatorOTP, signup, getAllUsers, signinOTP, signin, getUserById,
     generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream,
     updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass,
     sendWpMessageByClass, calculateNormalizedScores
