@@ -57,7 +57,8 @@ const leadSchema = new Schema({
     },
     assignedTo: {
         type: Schema.Types.ObjectId,
-        ref: 'Telecaller'
+        ref: 'Telecaller', 
+        default: null
     },
     callResponses: [{ type: Schema.Types.ObjectId, ref: 'CallResponse' }],
     lastContactedDate: {
