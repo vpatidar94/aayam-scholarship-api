@@ -1,6 +1,6 @@
 const express = require("express");
-const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream, updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass, sendWpMessageByClass, calculateNormalizedScores } = require("../controllers/user-controller");
-const { verifyOTP } = require("../services/user-otp-service");
+const { signup, sendOTPMessage, signupOTP, getAllUsers, signinOTP, signin, getUserById, generateSingleEnrollmentNo, generateAllEnrollmentNo, findUserByMobileNo, getAllUsersByStream, updateOfflineResults, generateRankByStream, getAllUsersByClass, generateRankByClass, sendWpMessageByClass, calculateNormalizedScores, signinNavigatorOTP } = require("../controllers/user-controller");
+const { verifyOTP, verifyNavigatorOTP } = require("../services/user-otp-service");
 const { verifyToken, verifyAdminToken } = require("../middleware/jwt-token");
 
 const router = express.Router();
@@ -10,12 +10,14 @@ router.put('/signup', signup);
 router.post('/sendotp', sendOTPMessage);
 router.post('/send-signup-otp', signupOTP);
 router.post('/verifyotp', verifyOTP);
+router.post('/verifyNavigatorOtp', verifyNavigatorOTP),
 router.post('/user-by-mobileNo', findUserByMobileNo);
 router.post('/update-offline-results', updateOfflineResults)
 // private routes
 router.get('/', verifyAdminToken, getAllUsers);
 router.get('/user', verifyToken, getUserById); // /{:id}
 router.post('/signin-otp', signinOTP);
+router.post('/signin-navigator-otp', signinNavigatorOTP);
 router.post('/signin', signin);
 router.put('/generate-enrolNo', generateSingleEnrollmentNo);
 router.put ('/genrate-all-enrolNo', generateAllEnrollmentNo);

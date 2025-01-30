@@ -60,5 +60,24 @@ const verifyOTP = async (req, res) => {
     }
 }
 
+const verifyNavigatorOTP = async (req, res) => {
+    const { mobileNo, enteredOtp } = req.body;
+    try {
+        const otpRecord = await OTP.findOne({ mobileNo: mobileNo });
+        const storedOtp = otpRecord ? otpRecord.otp : null;
+        console.log("storedOtp", storedOtp);
+        isVerified = storedOtp === enteredOtp;
+        if (isVerified) {
+            return res.status(200).json({ data: isVerified, code: 200, status_code: "success" });
+        } else {
+            return res.status(400).json({ code: 400, status_code: "error", message: "Invalid OTP. Verification failed." });
+        }
+    }
+    catch (error) {
+        console.error('Error verifying OTP', error);
+        return res.status(500).json({ code: 500, status_code: "error", message: "OTP verification failed" })
+    }
+}
 
-module.exports = { generateOTP, saveOTP, getSavedOTP, verifyOTP };
+
+module.exports = { generateOTP, saveOTP, getSavedOTP, verifyOTP,verifyNavigatorOTP };
