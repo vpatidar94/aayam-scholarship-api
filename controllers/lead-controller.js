@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const LeadUser = require("../models/lead-user");
 const Telecaller = require('../models/telecaller-model');
+const CallResponse = require('../models/call-response');
 const { readExcelFile } = require("../services/excel-file-service");
 const LeadAssignmentHistory = require('../models/lead-assignment-history');
 
@@ -233,4 +234,98 @@ const assignFilteredLeads = async (req, res) => {
 };
 
 
-module.exports = { addLeadStudents, assignFilteredLeads };
+// get leads with filter and sort
+const getLeads = async (req, res) => {
+    try {
+        const {
+            status, city, district, stream, priority, assignedTo,
+            search, sortBy = 'priority', sortOrder = 'desc', page = 1, limit = 10, onlyUnassigned,
+            gender, class: studentClass, medium, leadSource,
+            lastContactedFrom, lastContactedTo, followUpFrom, followUpTo
+        } = req.query;
+
+        const filters = {};
+
+        if (status) filters.status = { $in: status.split(',') }; // Allow multiple statuses
+        if (priority) filters.priority = { $in: priority.split(',') }; // Allow multiple priorities
+        if (city) filters.city = city;
+        if (district) filters.district = district;
+        if (stream) filters.stream = stream;
+        if (gender) filters.gender = gender;
+        if (studentClass) filters.class = studentClass;
+        if (medium) filters.medium = medium;
+        if (leadSource) filters.leadSource = leadSource;
+
+        if (onlyUnassigned === 'true') {
+            filters.assignedTo = null; // Fetch only unassigned leads
+        } else if (assignedTo) {
+            filters.assignedTo = assignedTo; // Fetch leads assigned to a specific telecaller
+        }
+
+        // Date range filter for last contacted date
+        if (lastContactedFrom || lastContactedTo) {
+            filters.lastContactedDate = {};
+            if (lastContactedFrom) filters.lastContactedDate.$gte = new Date(lastContactedFrom);
+            if (lastContactedTo) filters.lastContactedDate.$lte = new Date(lastContactedTo);
+        }
+
+        // Date range filter for follow-up date
+        if (followUpFrom || followUpTo) {
+            filters.followUpDate = {};
+            if (followUpFrom) filters.followUpDate.$gte = new Date(followUpFrom);
+            if (followUpTo) filters.followUpDate.$lte = new Date(followUpTo);
+        }
+
+        // Search logic: Matches name, mobile, school, etc.
+        if (search) {
+            filters.$or = [
+                { fullName: new RegExp(search, 'i') },
+                { mobileNo: new RegExp(search, 'i') },
+                { parentName: new RegExp(search, 'i') },
+                { schoolName: new RegExp(search, 'i') },
+            ];
+        }
+
+        // Sorting
+        const sortOptions = {};
+        sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+        // Pagination
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const totalLeads = await LeadUser.countDocuments(filters);
+
+        // Fetch leads
+        const leads = await LeadUser.find(filters)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .populate('assignedTo', 'fullName')
+            .populate('callResponses');
+
+        return res.status(200).json({
+            code: 200,
+            status_code: "success",
+            data: {
+                totalLeads,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(totalLeads / limit),
+                leads
+            },
+            message: "Leads fetched successfully."
+        });
+    } catch (error) {
+        console.error('Error fetching leads:', error);
+        return res.status(500).json({
+            code: 500,
+            status_code: "error",
+            message: "An error occurred while fetching leads."
+        });
+    }
+};
+
+
+module.exports = {
+    addLeadStudents,
+    assignFilteredLeads,
+    getLeads,
+};
