@@ -11,7 +11,7 @@ const callResponseSchema = new Schema({
     response: {
         type: String, 
         enum: ['POSITIVE', 'NEGATIVE', 'NEUTRAL', 'NOT_ANSWERED'],
-        default: 'neutral'
+        default: 'NEUTRAL'
     },
     notes: { type: String },
     nextFollowUpDate: { type: Date },
