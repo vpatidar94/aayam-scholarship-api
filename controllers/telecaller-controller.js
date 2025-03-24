@@ -1,3 +1,4 @@
+const Lead = require("../models/lead-user");
 const Telecaller = require("../models/telecaller-model");
 
 const addTelecaller = async (req, res) => {
@@ -26,60 +27,36 @@ const addTelecaller = async (req, res) => {
 
 const getTelecallers = async (req, res) => {
     try {
-        const {
-            isAbsent,
-            minLeads,
-            maxLeads,
-            sortBy = 'name',
-            sortOrder = 'asc',
-            limit = 10,
-            page = 1
-        } = req.query;
+        // Fetch all telecallers
+        const telecallers = await Telecaller.find({}, '_id name dailyQuota isAbsent');
 
-        const filters = {};
+        // Map through telecallers and count pending leads for each
+        const telecallersData = await Promise.all(
+            telecallers.map(async (telecaller) => {
+                const pendingLeadsCount = await Lead.countDocuments({
+                    assignedTo: telecaller._id,
+                    pending: true
+                });
 
-        // Apply filters
-        if (isAbsent !== undefined) {
-            filters.isAbsent = isAbsent === 'true';
-        }
-
-        if (minLeads) {
-            filters.leadsAssignedToday = { $gte: parseInt(minLeads) };
-        }
-
-        if (maxLeads) {
-            filters.leadsAssignedToday = {
-                ...filters.leadsAssignedToday,
-                $lte: parseInt(maxLeads)
-            };
-        }
-
-        // Pagination and sorting
-        const pageNumber = parseInt(page);
-        const pageSize = parseInt(limit);
-        const skip = (pageNumber - 1) * pageSize;
-
-        const telecallers = await Telecaller.find(filters)
-            .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
-            .skip(skip)
-            .limit(pageSize);
-
-        const total = await Telecaller.countDocuments(filters);
+                return {
+                    telecallerId: telecaller._id,
+                    name: telecaller.name,
+                    dailyQuota: telecaller.dailyQuota,
+                    isAbsent: telecaller.isAbsent,
+                    pendingLeadsCount
+                };
+            })
+        );
 
         res.status(200).json({
             code: 200,
             status_code: "success",
-            data: telecallers,
-            pagination: {
-                total,
-                page: pageNumber,
-                limit: pageSize,
-                totalPages: Math.ceil(total / pageSize)
-            },
+            data: telecallersData,
             message: 'Telecallers retrieved successfully.'
         });
 
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error fetching telecallers:', error);
         res.status(500).json({
             code: 500,

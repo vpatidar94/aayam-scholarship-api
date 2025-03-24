@@ -57,16 +57,34 @@ const leadSchema = new Schema({
     },
     assignedTo: {
         type: Schema.Types.ObjectId,
-        ref: 'Telecaller', 
+        ref: 'Telecaller',
         default: null
     },
     callResponses: [{ type: Schema.Types.ObjectId, ref: 'CallResponse' }],
+    lastAssignedDate: {
+        type: Date
+    },             // Date of last assignment
     lastContactedDate: {
         type: Date
     },
     followUpDate: {
         type: Date
     },
+    // Status Tracking
+    contacted: {
+        type: Boolean,
+        default: false                // True if contacted at least once
+    },
+    pending: {
+        type: Boolean,
+        default: true                 // True if pending for current assignment
+    },
+    convertedBy: {
+        type: String,
+    },
+    convertedDate: {
+        type: Date,
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Lead', leadSchema);
