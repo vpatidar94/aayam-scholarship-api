@@ -193,7 +193,7 @@ const assignFilteredLeads = async (req, res) => {
                 updateOne: {
                     filter: { _id: leadId },
                     update: {
-                        $set: { assignedTo: telecallerId, assignedDate: new Date() },
+                        $set: { assignedTo: telecallerId, lastAssignedDate: new Date(), pending: true },
                     },
                 },
             }))
@@ -323,9 +323,89 @@ const getLeads = async (req, res) => {
     }
 };
 
+// update/ add call response , lead data api 
+const UpdateLeadCallResponse = async (req, res) => {
+    const { leadId, telecallerId, callType, callDuration, response, notes, nextFollowUpDate, leadStatus } = req.body;
+
+    if (!leadId || !telecallerId) {
+        return res.status(400).json({ message: "Lead ID and Telecaller ID are required" });
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    let transactionCommitted = false;
+
+    try {
+        // 1. Add new CallResponse
+        const newCallResponse = new CallResponse({
+            leadId,
+            telecallerId,
+            callType,
+            callDuration,
+            response,
+            notes,
+            nextFollowUpDate,
+            callDate: new Date()
+        });
+
+        await newCallResponse.save({ session });
+
+        //  2. Update Lead with manual status
+        const leadUpdate = {
+            lastContactedDate: new Date(),
+            contacted: true,  // Mark as contacted
+            status: leadStatus,  //  Use the manually provided status
+            pending: false,
+            assignedTo: null,
+        };
+
+        if (nextFollowUpDate) {
+            leadUpdate.followUpDate = nextFollowUpDate;
+        }
+
+        const updatedLead = await LeadUser.findByIdAndUpdate(leadId, leadUpdate, { session });
+
+        //  3. Update Telecaller Stats
+        const telecaller = await Telecaller.findById(telecallerId).session(session);
+        let updatedTelecaller
+        if (telecaller) {
+            telecaller.callsMadeToday += 1;
+            telecaller.totalCallsMade += 1;
+
+            updatedTelecaller = await telecaller.save({ session });
+        }
+
+        //  Commit the transaction
+        await session.commitTransaction();
+        transactionCommitted = true;  // Mark as committed
+        session.endSession();
+
+        return res.status(201).json({
+            code: 201,
+            status_code: "success",
+            data: { newCallResponse, updatedLead, updatedTelecaller },
+            message: "Call response added successfully and lead updated",
+        });
+
+    } catch (error) {
+        //  Only abort if the transaction wasn't committed
+        if (!transactionCommitted) {
+            await session.abortTransaction();
+        }
+        session.endSession();
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            status_code: "error",
+            message: "Error adding call response", error
+        });
+    }
+};
+
 
 module.exports = {
     addLeadStudents,
     assignFilteredLeads,
     getLeads,
+    UpdateLeadCallResponse,
 };

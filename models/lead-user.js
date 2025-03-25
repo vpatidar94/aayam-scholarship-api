@@ -48,7 +48,7 @@ const leadSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['NEW', 'CONTACTED', 'QUALIFIED', 'CONVERTED', 'NOT_INTERESTED'],
+        enum: ['NEW', 'INTERESTED', 'HOT', 'CONVERTED', 'NOT_INTERESTED'],
         default: 'NEW'
     },
     priority: {
@@ -76,8 +76,7 @@ const leadSchema = new Schema({
         default: false                // True if contacted at least once
     },
     pending: {
-        type: Boolean,
-        default: true                 // True if pending for current assignment
+        type: Boolean,                 // True if pending for current assignment        
     },
     convertedBy: {
         type: String,
