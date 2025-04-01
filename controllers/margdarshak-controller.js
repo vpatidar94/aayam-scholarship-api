@@ -34,7 +34,35 @@ const getAllMargdarshaks = async (req, res) => {
     }
 }
 
+
+// update margdarshak newly added
+const updateMargdarshakUser = async (req, res) => {
+    const userId = req.body.userId;
+    const updatedData = req.body;
+    try {
+        const updatedMargdarshakUser = await Margdarshak.findByIdAndUpdate(userId, updatedData);
+
+        if (!updatedMargdarshakUser) {
+            return res.status(404).json({
+                code: 404,
+                status_code: "not_found",
+                message: "Margdarshak not found"
+            });
+        }
+        return res.status(201).json({ code: 201, status_code: "success", message: "Margdarshak Updated Successfully" })
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            status_code: "error",
+            message: "Internal Server Error"
+        });
+    }
+}
+
 module.exports = {
     addMargdarshak,
-    getAllMargdarshaks
+    getAllMargdarshaks,
+    updateMargdarshakUser
 }

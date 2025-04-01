@@ -50,6 +50,18 @@ const margdarshakSchema = new Schema({
     associatedBy: {
         type: String,
     },
+    payments: [
+        {
+            amountPaid: {
+                type: Number,
+                required: true
+            },
+            datePaid: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 },
     {
         timestamps: true
