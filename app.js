@@ -14,6 +14,7 @@ const margdarshakRouter = require("./routes/margdarshak-routes");
 const employeeRouter = require("./routes/employee-routes");
 const leadUserRouter = require("./routes/lead-user-routes");
 const telecallerRouter = require("./routes/telecaller-routes");
+const callLogsROuter = require("./routes/call-logs-routes");
 
 app.use(express.json());
 
@@ -40,6 +41,7 @@ app.use("/margdarshak", cors(corsOptions), margdarshakRouter);
 app.use("/employee", cors(corsOptions), employeeRouter);
 app.use("/lead", cors(corsOptions), leadUserRouter);
 app.use("/telecaller", cors(corsOptions), telecallerRouter);
+app.use("callLog", cors(corsOptions), callLogsROuter);
 
 // Mongoose connection ----------
 const databaseURL = process.env.DATABASE_URL;
