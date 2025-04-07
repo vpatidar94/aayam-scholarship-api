@@ -14,12 +14,12 @@ const margdarshakRouter = require("./routes/margdarshak-routes");
 const employeeRouter = require("./routes/employee-routes");
 const leadUserRouter = require("./routes/lead-user-routes");
 const telecallerRouter = require("./routes/telecaller-routes");
-const callLogsROuter = require("./routes/call-logs-routes");
+const callLogsRouter = require("./routes/call-logs-routes");
 
 app.use(express.json());
 
 // Use the CORS handler --------
-const allowedOrigins = ['http://localhost:4400', 'https://scholarship-web-gcqrn.ondigitalocean.app', 'https://jeet.aayamcareerinstitute.com', 'https://aset.aayamcareerinstitute.com', 'https://saksham-web-baurb.ondigitalocean.app','https://saksham.aayamcareerinstitute.com'];
+const allowedOrigins = ['http://localhost:4400','http://localhost:4200', 'https://scholarship-web-gcqrn.ondigitalocean.app', 'https://jeet.aayamcareerinstitute.com', 'https://aset.aayamcareerinstitute.com', 'https://saksham-web-baurb.ondigitalocean.app','https://saksham.aayamcareerinstitute.com'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
@@ -41,7 +41,7 @@ app.use("/margdarshak", cors(corsOptions), margdarshakRouter);
 app.use("/employee", cors(corsOptions), employeeRouter);
 app.use("/lead", cors(corsOptions), leadUserRouter);
 app.use("/telecaller", cors(corsOptions), telecallerRouter);
-app.use("/callLog", cors(corsOptions), callLogsROuter);
+app.use("/callLog", cors(corsOptions), callLogsRouter);
 
 // Mongoose connection ----------
 const databaseURL = process.env.DATABASE_URL;
