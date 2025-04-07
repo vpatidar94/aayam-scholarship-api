@@ -41,7 +41,7 @@ app.use("/margdarshak", cors(corsOptions), margdarshakRouter);
 app.use("/employee", cors(corsOptions), employeeRouter);
 app.use("/lead", cors(corsOptions), leadUserRouter);
 app.use("/telecaller", cors(corsOptions), telecallerRouter);
-app.use("callLog", cors(corsOptions), callLogsROuter);
+app.use("/callLog", cors(corsOptions), callLogsROuter);
 
 // Mongoose connection ----------
 const databaseURL = process.env.DATABASE_URL;
