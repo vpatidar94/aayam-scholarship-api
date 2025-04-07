@@ -4,6 +4,6 @@ const { addCallLog, addMultipleCallLog } = require("../controllers/call-logs-con
 const router = express.Router();
 
 router.post('/add', addCallLog);
-router.post('add-many',addMultipleCallLog);
+router.post('/add-many',addMultipleCallLog);
 
 module.exports = router;
