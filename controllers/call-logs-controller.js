@@ -47,8 +47,8 @@ const addMultipleCallLog = async (req, res) => {
             }
         }
 
-        res.status(201).json({
-            message: 'Processed messages',
+        res.status(200).json({
+            message: 'success',
             addedCount: added.length,
             skippedCount: skipped.length,
             added,
