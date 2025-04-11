@@ -70,8 +70,34 @@ const getAllCallLogs = async (req, res) => {
     }
 }
 
+const updateCallLog = async (req, res) => {
+    const userId = req.body.userId;
+    const updatedData = req.body;
+    try {
+        const updatedCallLog = await CallLogs.findByIdAndUpdate(userId, updatedData);
+
+        if (!updatedCallLog) {
+            return res.status(404).json({
+                code: 404,
+                status_code: "not_found",
+                message: "Call Log not found"
+            });
+        }
+        return res.status(201).json({ code: 201, status_code: "success", message: "Call Log Updated Successfully" })
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            status_code: "error",
+            message: "Internal Server Error"
+        });
+    }
+}
+
 module.exports = {
     addCallLog,
     addMultipleCallLog,
-    getAllCallLogs
+    getAllCallLogs,
+    updateCallLog
 }
