@@ -58,9 +58,20 @@ const addMultipleCallLog = async (req, res) => {
         res.status(500).json({ error: 'Error saving message', details: error.message });
     }
 }
+const getAllCallLogs = async (req, res) => {
+    try {
+        const allCallLogs = await CallLogs.find();
 
+        return res.status(200).json({ data: allCallLogs, code: 200, status_code: "success", message: "CallLogs fetched successfully" })
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ code: 500, status_code: "error", message: "something went wrong" })
+    }
+}
 
 module.exports = {
     addCallLog,
     addMultipleCallLog,
+    getAllCallLogs
 }
