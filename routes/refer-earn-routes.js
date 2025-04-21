@@ -3,7 +3,7 @@ const { addMultipleStudents, getAllStudents,} = require("../controllers/refer-ea
 
 const router = express.Router();
 
-router.post('/add-many',addMultipleStudents);
+router.post('/add-bulk',addMultipleStudents);
 router.get('/get-students', getAllStudents);
 
 
