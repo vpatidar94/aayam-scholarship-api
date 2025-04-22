@@ -15,7 +15,7 @@ const employeeRouter = require("./routes/employee-routes");
 const leadUserRouter = require("./routes/lead-user-routes");
 const telecallerRouter = require("./routes/telecaller-routes");
 const callLogsRouter = require("./routes/call-logs-routes");
-const referEarnRouter = requires("./routes/refer-earn-routes");
+const referEarnRouter = require("./routes/refer-earn-routes");
 
 app.use(express.json());
 
@@ -43,7 +43,7 @@ app.use("/employee", cors(corsOptions), employeeRouter);
 app.use("/lead", cors(corsOptions), leadUserRouter);
 app.use("/telecaller", cors(corsOptions), telecallerRouter);
 app.use("/callLog", cors(corsOptions), callLogsRouter);
-app.use("/refer-earn",cors(corsOptions), referEarnRouter);
+app.use("/refer-earn", cors(corsOptions), referEarnRouter);
 
 // Mongoose connection ----------
 const databaseURL = process.env.DATABASE_URL;
