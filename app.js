@@ -20,7 +20,7 @@ const referEarnRouter = require("./routes/refer-earn-routes");
 app.use(express.json());
 
 // Use the CORS handler --------
-const allowedOrigins = ['http://localhost:4400','http://localhost:4200', 'https://scholarship-web-gcqrn.ondigitalocean.app', 'https://jeet.aayamcareerinstitute.com', 'https://aset.aayamcareerinstitute.com', 'https://saksham-web-baurb.ondigitalocean.app','https://saksham.aayamcareerinstitute.com'];
+const allowedOrigins = ['http://localhost:4400','http://localhost:4200', 'https://scholarship-web-gcqrn.ondigitalocean.app', 'https://jeet.aayamcareerinstitute.com', 'https://aset.aayamcareerinstitute.com', 'https://saksham-web-baurb.ondigitalocean.app','https://saksham.aayamcareerinstitute.com','https://form.helpwards.com'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
